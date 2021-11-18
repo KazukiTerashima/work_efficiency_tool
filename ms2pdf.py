@@ -45,9 +45,8 @@ def pdf_merger(m_out = ""):
     merger.close()
 
 if __name__ == '__main__':
-    ptn = 0
     print("excelファイルとwordファイルをPDF化して全てを結合します。")
-    print("PDF化のみ：\"1\"、PDF結合のみ：\"2\",すべて実行する：入力なし、でEnterキーを押してください")
+    print("PDF化のみ：\"1\"、PDF結合のみ：\"2\",すべて実行する：0、でEnterキーを押してください")
     ptn = int(input())
     if ptn in [0, 1, 2]:
         if ptn == 0 or ptn == 1:
@@ -59,15 +58,26 @@ if __name__ == '__main__':
             # ディレクトリが存在しない場合、ディレクトリを作成する
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
+            
             for file in filenames:
-                word_match = re.search("\.docx$", file) 
-                if word_match: 
-                    docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
-                    print(file)
-                excel_match = re.search("\.xlsx$", file) 
-                if excel_match: 
-                    excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
-                    print(file)
+                if not os.path.exists(output_dir+file[:-5]+".pdf"):
+                    word_match = re.search("\.docx$", file)
+                    if word_match:
+                        docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
+                        print(file)
+                    excel_match = re.search("\.xlsx$", file) 
+                    if excel_match:
+                        excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
+                        print(file)
+                else:
+                    word_match = re.search("\.docx$", file)
+                    if word_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
+                        docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
+                        print(file)
+                    excel_match = re.search("\.xlsx$", file) 
+                    if excel_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
+                        excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
+                        print(file)
             if ptn == 1:
                 print("-------------------------------")
                 print("merging PDF from:" + output_dir)
@@ -85,7 +95,10 @@ if __name__ == '__main__':
                 print("正常に処理が終了しました。")
 
         if ptn == 0 or ptn == 2:
-            pdf_merger()
+            if ptn == 0:
+                pdf_merger(output_dir)
+            if ptn == 2:
+                pdf_merger()
             print("正常に処理が終了しました。")
     else:
         print("入力が不正です。")
