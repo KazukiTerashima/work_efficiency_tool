@@ -60,24 +60,26 @@ if __name__ == '__main__':
                 os.makedirs(output_dir)
             
             for file in filenames:
-                if not os.path.exists(output_dir+file[:-5]+".pdf"):
-                    word_match = re.search("\.docx$", file)
-                    if word_match:
-                        docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
-                        print(file)
-                    excel_match = re.search("\.xlsx$", file) 
-                    if excel_match:
-                        excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
-                        print(file)
-                else:
-                    word_match = re.search("\.docx$", file)
-                    if word_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
-                        docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
-                        print(file)
-                    excel_match = re.search("\.xlsx$", file) 
-                    if excel_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
-                        excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
-                        print(file)
+                corrupted_file = re.search("^~\$*", file)
+                if not corrupted_file:
+                    if not os.path.exists(output_dir+file[:-5]+".pdf"):
+                        word_match = re.search("\.docx$", file)
+                        if word_match:
+                            print(file)
+                            docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
+                        excel_match = re.search("\.xlsx$", file) 
+                        if excel_match:
+                            print(file)
+                            excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
+                    else:
+                        word_match = re.search("\.docx$", file)
+                        if word_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
+                            print(file)
+                            docx2pdf.convert(input_dir+file, output_dir+file[:-5]+".pdf")
+                        excel_match = re.search("\.xlsx$", file) 
+                        if excel_match and os.path.getmtime(input_dir+file) > os.path.getmtime(output_dir+file[:-5]+".pdf"): 
+                            print(file)
+                            excel2pdf(input_dir+file, output_dir+file[:-5]+".pdf")
             if ptn == 1:
                 print("-------------------------------")
                 print("merging PDF from:" + output_dir)
@@ -87,11 +89,10 @@ if __name__ == '__main__':
                 num = 0
                 for file in filenames: 
                     print(file)
-                print("※※※※※※ ファイルの順番と数を確認してください ※※※※※※")
                 print("total: " + str(num) + "file")
-                print("-------------------------------")
+                print("※※※※※※ ファイルの順番と数を確認してください ※※※※※※")
                 print()
-                print("結合したPDFの名前を入力:", end="")
+                print("結合PDFの名前を入力:", end="")
                 print("正常に処理が終了しました。")
 
         if ptn == 0 or ptn == 2:

@@ -3,3 +3,5 @@ excel2pdf.py
 mergepdf.py
 env/*
 __pycache__/*
+.env
+test.py
